@@ -40,7 +40,7 @@ export class Esp32sService {
   }
 
   async findAll() {
-    return this.esp32Model.find().exec();
+    return this.esp32Model.find().populate("owner").exec();
   }
 
   async findByOwner(ownerId: string) {

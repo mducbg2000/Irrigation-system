@@ -14,6 +14,7 @@ import {
   ValveSensor,
 } from "./sensors.schema";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { SocketGateway } from "../socket/socket.gateway";
 
 @ApiBearerAuth()
 @ApiTags("Sensors Controller")
@@ -21,6 +22,7 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 export class SensorsController implements OnApplicationBootstrap {
   constructor(
     @Inject("MQTT_SERVICE") private client: ClientMqtt,
+    private socketGateway: SocketGateway,
     private sensorService: SensorsService
   ) {}
 
@@ -29,22 +31,27 @@ export class SensorsController implements OnApplicationBootstrap {
   }
 
   @EventPattern("CEIOT/G4/current-liquid-level")
-  async currentLiquidLevel(@Payload() data: TankSensor) {
-    await this.sensorService.updateLiquidLevel(data);
+  async currentLiquidLevel(@Payload() sensor: TankSensor) {
+    const updated = await this.sensorService.updateLiquidLevel(sensor);
+    this.socketGateway.updateTank(updated.tank, updated.owner);
   }
 
   @EventPattern("CEIOT/G4/current-soil-moisture")
-  async currentSoilMoisture(@Payload() data: MoistureSensor) {
-    await this.sensorService.updateSoilMoisture(data);
+  async currentSoilMoisture(@Payload() sensor: MoistureSensor) {
+    const updated = await this.sensorService.updateSoilMoisture(sensor);
+    this.socketGateway.updateTree(updated.tree, updated.owner);
   }
 
   @EventPattern("CEIOT/G4/valve-status")
-  async currentValveStatus(@Payload() data: ValveSensor) {
-    await this.sensorService.updateValveStatus(data);
+  async currentValveStatus(@Payload() sensor: ValveSensor) {
+    const updated = await this.sensorService.updateValveStatus(sensor);
+    this.socketGateway.updateTree(updated.tree, updated.owner);
   }
 
   @Post("water-tree")
-  async waterTree(@Body() sensor: Sensor) {
+  async waterTree(@Body() sensor: ValveSensor) {
+    const updated = await this.sensorService.updateValveStatus(sensor);
     this.client.emit("CEIOT/G4/water-tree", sensor);
+    this.socketGateway.updateTree(updated.tree, updated.owner);
   }
 }

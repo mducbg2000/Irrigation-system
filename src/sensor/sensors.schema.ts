@@ -16,5 +16,6 @@ export class TankSensor extends Sensor {
 }
 
 export class ValveSensor extends Sensor {
+  @ApiProperty()
   isValveOpen: boolean;
 }

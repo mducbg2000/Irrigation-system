@@ -21,8 +21,11 @@ export class SensorsService {
       .exec();
     if (!esp) return null;
     const tank = esp.tanks.find((tank) => tank.index == sensor.index);
-    tank.liquidLevel = sensor.liquidLevel;
-    return tank.save();
+    tank.liquidLevel = sensor.liquidLevel > tank.height ? 0 : tank.height - sensor.liquidLevel;
+    return {
+      owner: esp.owner._id.toString(),
+      tank: await tank.save()
+    }
   }
 
   async updateSoilMoisture(sensor: MoistureSensor) {
@@ -32,8 +35,11 @@ export class SensorsService {
       .exec();
     if (!esp) return null;
     const tree = esp.trees.find((tree) => tree.index == sensor.index);
-    tree.currentMoisture = sensor.currentMoisture;
-    return tree.save();
+    tree.currentMoisture = sensor.currentMoisture > 100 ? 100 : sensor.currentMoisture;
+    return {
+      owner: esp.owner._id.toString(),
+      tree: await tree.save()
+    }
   }
 
   async updateValveStatus(sensor: ValveSensor) {
@@ -44,6 +50,9 @@ export class SensorsService {
     if (!esp) return null;
     const tree = esp.trees.find((tree) => tree.index == sensor.index);
     tree.isValveOpen = sensor.isValveOpen;
-    return tree.save();
+    return {
+      owner: esp.owner._id.toString(),
+      tree: await tree.save()
+    }
   }
 }

@@ -1,23 +1,21 @@
-import axios from "axios";
+import { authConfig, client } from "./conf";
 
-const token = window.localStorage.getItem("access_token");
-
-const client = axios.create({
-    baseURL: "http://localhost:3001",
-});
-
-const config = {
-    headers: {
-        Authorization: `Bearer ${token}`,
-    },
-}
 
 export const getListTree = async () => {
   try {
-      const response = await client.get("/trees", config);
-      return response.data;
+    const response = await client.get("/trees", authConfig);
+    return response.data;
   } catch (e) {
-      console.log(e);
-      return [];
+    console.log(e);
+    return [];
   }
-}
+};
+
+export const waterTree = async ({ espId, index, isValveOpen }) => {
+  try {
+    const response = await client.post("/sensors/water-tree", { espId, index, isValveOpen }, authConfig);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};

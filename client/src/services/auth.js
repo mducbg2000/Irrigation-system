@@ -1,10 +1,6 @@
-import axios from "axios";
+import { client } from "./conf";
 
 const storage = window.localStorage;
-
-const client = axios.create({
-    baseURL: "http://localhost:3001",
-});
 
 export const register = (username, password) => {
     client
