@@ -3,7 +3,8 @@ import "./App.css";
 import { getCurrentUser } from "./services/auth";
 import UserDashboard from "./pages/user-dashboard";
 import AuthForm from "./pages/auth-form";
-import { socket, SocketContext } from "./services/real-time";
+import { SocketContext } from "./services/real-time";
+import { socket } from "./services/conf";
 
 export default function App() {
 
